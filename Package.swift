@@ -71,10 +71,14 @@ let package = Package(
         .testTarget(name: "SotoCryptoTests", dependencies: [
             .byName(name: "SotoCrypto"),
         ]),
-        .testTarget(name: "SotoCoreTests", dependencies: [
-            .byName(name: "SotoCore"),
-            .byName(name: "SotoTestUtils"),
-        ]),
+        .testTarget(
+            name: "SotoCoreTests",
+            dependencies: [
+                .byName(name: "SotoCore"),
+                .byName(name: "SotoTestUtils"),
+            ],
+            swiftSettings: [.unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])]
+        ),
         .testTarget(name: "SotoSignerV4Tests", dependencies: [
             .byName(name: "SotoSignerV4"),
         ]),
