@@ -55,13 +55,17 @@ let package = Package(
             .byName(name: "SotoCrypto"),
             .product(name: "NIOHTTP1", package: "swift-nio"),
         ]),
-        .target(name: "SotoTestUtils", dependencies: [
-            .byName(name: "SotoCore"),
-            .product(name: "NIO", package: "swift-nio"),
-            .product(name: "NIOHTTP1", package: "swift-nio"),
-            .product(name: "NIOFoundationCompat", package: "swift-nio"),
-            .product(name: "NIOTestUtils", package: "swift-nio"),
-        ]),
+        .target(
+            name: "SotoTestUtils",
+            dependencies: [
+                .byName(name: "SotoCore"),
+                .product(name: "NIO", package: "swift-nio"),
+                .product(name: "NIOHTTP1", package: "swift-nio"),
+                .product(name: "NIOFoundationCompat", package: "swift-nio"),
+                .product(name: "NIOTestUtils", package: "swift-nio"),
+            ],
+            swiftSettings: [.unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])]
+        ),
         .target(name: "SotoXML", dependencies: [
             .byName(name: "CSotoExpat"),
         ]),

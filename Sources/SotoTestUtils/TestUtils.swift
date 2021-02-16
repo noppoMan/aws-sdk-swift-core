@@ -15,6 +15,7 @@
 import Foundation
 import Logging
 import SotoCore
+import XCTest
 
 @propertyWrapper public struct EnvironmentVariable<Value: LosslessStringConvertible> {
     var defaultValue: Value
@@ -115,4 +116,14 @@ public enum TestEnvironment {
         }
         return AWSClient.loggingDisabled
     }()
+}
+
+public func XCTRunAsyncAndBlock(_ closure: @escaping () async throws -> ()) {
+    runAsyncAndBlock {
+        do {
+            try await closure()
+        } catch {
+            XCTFail("\(error)")
+        }
+    }
 }
