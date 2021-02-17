@@ -33,7 +33,7 @@ extension AWSClient {
         ///   - tokenKey: KeyPath for Output token used to setup new Input
         ///   - logger: Logger
         ///   - eventLoop: EventLoop to run everything on
-        init(
+        public init(
             input: Input,
             command: @escaping ((Input, Logger, EventLoop?) async throws -> Output),
             inputKey: KeyPath<Input, Input.Token?>,
