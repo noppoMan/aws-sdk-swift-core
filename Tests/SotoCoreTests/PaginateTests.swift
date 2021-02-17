@@ -92,7 +92,7 @@ class PaginateTests: XCTestCase {
         )
     }
 
-    func asyncCounterPaginator(_ input: CounterInput) -> AWSPaginatorSequence<CounterInput, CounterOutput> {
+    func asyncCounterPaginator(_ input: CounterInput) -> AWSClient.PaginatorSequence<CounterInput, CounterOutput> {
         return .init(
             input: input,
             command: self.counter,
@@ -137,17 +137,10 @@ class PaginateTests: XCTestCase {
     }
 
     func testAsyncIntegerTokenPaginate() throws {
-        @concurrent func asyncPaginator(input: CounterInput) async throws -> [Int] {
-            var finalArray: [Int] = []
-            for try await i in self.asyncCounterPaginator(input) {
-                finalArray.append(contentsOf: i.array)
-            }
-            return finalArray
-        }
         XCTRunAsyncAndBlock {
             // paginate input
             let input = CounterInput(inputToken: nil, pageSize: 4)
-            async let asyncFinalArray = asyncPaginator(input: input)
+            async let asyncFinalArray: [Int] = self.asyncCounterPaginator(input).reduce([], { return $0 + $1.array })
             
             let arraySize = 23
             // aws server process
