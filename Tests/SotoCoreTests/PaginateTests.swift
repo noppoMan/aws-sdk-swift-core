@@ -96,7 +96,8 @@ class PaginateTests: XCTestCase {
         return .init(
             input: input,
             command: self.counter,
-            tokenKey: \CounterOutput.outputToken,
+            inputKey: \CounterInput.inputToken,
+            outputKey: \CounterOutput.outputToken,
             logger: TestEnvironment.logger
         )
     }
@@ -242,6 +243,28 @@ class PaginateTests: XCTestCase {
         )
     }
 
+    func stringList(_ input: StringListInput, logger: Logger, on eventLoop: EventLoop? = nil) async throws -> StringListOutput {
+        return try await self.client.execute(
+            operation: "TestOperation",
+            path: "/",
+            httpMethod: .POST,
+            serviceConfig: self.config,
+            input: input,
+            logger: logger,
+            on: eventLoop
+        )
+    }
+
+    func asyncStringListPaginator(_ input: StringListInput) -> AWSClient.PaginatorSequence<StringListInput, StringListOutput> {
+        .init(
+            input: input,
+            command: self.stringList,
+            inputKey: \StringListInput.inputToken,
+            outputKey: \StringListOutput.outputToken,
+            logger: TestEnvironment.logger
+        )
+    }
+
     // create list of unique strings
     let stringList = Set("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".split(separator: " ").map { String($0) }).map { $0 }
 
@@ -314,6 +337,26 @@ class PaginateTests: XCTestCase {
         }
     }
 
+    func testAsyncStringTokenReducePaginate() throws {
+        XCTRunAsyncAndBlock {
+            // paginate input
+            let input = StringListInput(inputToken: nil, pageSize: 5)
+            let paginator = self.asyncStringListPaginator(input)
+            async let asyncResult = paginator.reduce([], { $0 + $1.array })
+
+            // aws server process
+            XCTAssertNoThrow(try self.awsServer.process(self.stringListServerProcess))
+
+            // wait for response
+            let finalArray = try await asyncResult
+            // verify contents of array
+            XCTAssertEqual(finalArray.count, self.stringList.count)
+            for i in 0..<finalArray.count {
+                XCTAssertEqual(finalArray[i], self.stringList[i])
+            }
+        }
+    }
+
     struct ErrorOutput: AWSShape {
         let error: String
     }
@@ -333,6 +376,26 @@ class PaginateTests: XCTestCase {
         // wait for response
         XCTAssertThrowsError(try future.wait()) { error in
             XCTAssertEqual((error as? AWSResponseError)?.errorCode, "BadRequest")
+        }
+    }
+
+    func testAsyncPaginateError() throws {
+        XCTRunAsyncAndBlock {
+            // paginate input
+            let input = StringListInput(inputToken: nil, pageSize: 5)
+            let paginator = self.asyncStringListPaginator(input)
+            async let asyncResult = paginator.reduce([], { $0 + $1.array })
+
+            // aws server process
+            XCTAssertNoThrow(try self.awsServer.process { (_: StringListInput) -> AWSTestServer.Result<StringListOutput> in
+                return .error(.badRequest)
+            })
+
+            do {
+                _ = try await asyncResult
+            } catch {
+                XCTAssertEqual((error as? AWSResponseError)?.errorCode, "BadRequest")
+            }
         }
     }
 
