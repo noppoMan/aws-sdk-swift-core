@@ -24,6 +24,56 @@ public protocol AWSPaginateToken: AWSShape {
     func usingPaginationToken(_ token: Token) -> Self
 }
 
+
+public struct AWSPaginatorSequence<Input: AWSPaginateToken, Output: AWSShape>: AsyncSequence {
+    public typealias Element = Output
+    let input: Input
+    let command: ((Input, Logger, EventLoop?) async throws -> Output)
+    let tokenKey: KeyPath<Output, Input.Token?>
+    let logger: Logger
+    let eventLoop: EventLoop?
+
+    init(
+        input: Input,
+        command: @escaping ((Input, Logger, EventLoop?) async throws -> Output),
+        tokenKey: KeyPath<Output, Input.Token?>,
+        logger: Logger = AWSClient.loggingDisabled,
+        on eventLoop: EventLoop? = nil
+    ) {
+        self.input = input
+        self.command = command
+        self.tokenKey = tokenKey
+        self.logger = AWSClient.loggingDisabled
+        self.eventLoop = eventLoop
+    }
+
+    public struct AsyncIterator: AsyncIteratorProtocol {
+        var input: Input?
+        let sequence: AWSPaginatorSequence
+        
+        init(sequence: AWSPaginatorSequence) {
+            self.sequence = sequence
+            self.input = sequence.input
+        }
+        public mutating func next() async throws -> Output? {
+            if let input = input {
+                let output = try await sequence.command(input, sequence.logger, sequence.eventLoop)
+                if let token = output[keyPath: sequence.tokenKey] {
+                    self.input = input.usingPaginationToken(token)
+                } else {
+                    self.input = nil
+                }
+                return output
+            }
+            return nil
+        }
+    }
+
+    public func makeAsyncIterator() -> AsyncIterator {
+        return AsyncIterator(sequence: self)
+    }
+}
+
 extension AWSClient {
     /// If an AWS command is returning an arbituary sized array sometimes it adds support for paginating this array
     /// ie it will return the array in blocks of a defined size, each block also includes a token which can be used to access

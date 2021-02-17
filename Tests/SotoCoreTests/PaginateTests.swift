@@ -78,6 +78,10 @@ class PaginateTests: XCTestCase {
         )
     }
 
+    func counter(_ input: CounterInput, logger: Logger, on eventLoop: EventLoop?) async throws -> CounterOutput {
+        return try await counter(input, logger: logger, on: eventLoop).get()
+    }
+    
     func counterPaginator(_ input: CounterInput, onPage: @escaping (CounterOutput, EventLoop) -> EventLoopFuture<Bool>) -> EventLoopFuture<Void> {
         return self.client.paginate(
             input: input,
@@ -85,6 +89,15 @@ class PaginateTests: XCTestCase {
             tokenKey: \CounterOutput.outputToken,
             logger: TestEnvironment.logger,
             onPage: onPage
+        )
+    }
+
+    func asyncCounterPaginator(_ input: CounterInput) -> AWSPaginatorSequence<CounterInput, CounterOutput> {
+        return .init(
+            input: input,
+            command: self.counter,
+            tokenKey: \CounterOutput.outputToken,
+            logger: TestEnvironment.logger
         )
     }
 
@@ -120,6 +133,43 @@ class PaginateTests: XCTestCase {
         XCTAssertEqual(finalArray.count, arraySize)
         for i in 0..<finalArray.count {
             XCTAssertEqual(finalArray[i], i)
+        }
+    }
+
+    func testAsyncIntegerTokenPaginate() throws {
+        @concurrent func asyncPaginator(input: CounterInput) async throws -> [Int] {
+            var finalArray: [Int] = []
+            for try await i in self.asyncCounterPaginator(input) {
+                finalArray.append(contentsOf: i.array)
+            }
+            return finalArray
+        }
+        XCTRunAsyncAndBlock {
+            // paginate input
+            let input = CounterInput(inputToken: nil, pageSize: 4)
+            async let asyncFinalArray = asyncPaginator(input: input)
+            
+            let arraySize = 23
+            // aws server process
+            XCTAssertNoThrow(try self.awsServer.process { (input: CounterInput) throws -> AWSTestServer.Result<CounterOutput> in
+                // send part of array of numbers based on input startIndex and pageSize
+                let startIndex = input.inputToken ?? 0
+                let endIndex = min(startIndex + input.pageSize, arraySize)
+                var array: [Int] = []
+                for i in startIndex..<endIndex {
+                    array.append(i)
+                }
+                let continueProcessing = (endIndex != arraySize)
+                let output = CounterOutput(array: array, outputToken: endIndex != arraySize ? endIndex : nil)
+                return .result(output, continueProcessing: continueProcessing)
+            })
+
+            let finalArray = try await asyncFinalArray
+            // verify contents of array
+            XCTAssertEqual(finalArray.count, arraySize)
+            for i in 0..<finalArray.count {
+                XCTAssertEqual(finalArray[i], i)
+            }
         }
     }
 
