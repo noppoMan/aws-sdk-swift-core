@@ -248,12 +248,21 @@ extension AWSClient {
             let awsRequest = try createRequest()
                 .applyMiddlewares(config.middlewares + self.middlewares, config: config)
                 .createHTTPRequest(signer: signer, byteBufferAllocator: config.byteBufferAllocator)
+            // send request to AWS and process result
+            let streaming: Bool
+            switch awsRequest.body.payload {
+            case .stream:
+                streaming = true
+            default:
+                streaming = false
+            }
             let response = try await self.invoke(
                 with: config,
                 eventLoop: eventLoop,
                 logger: logger,
                 request: { eventLoop in execute(awsRequest, eventLoop, logger) },
-                processResponse: processResponse
+                processResponse: processResponse,
+                streaming: streaming
             ).get()
             logger.trace("AWS Response")
             Metrics.Timer(
