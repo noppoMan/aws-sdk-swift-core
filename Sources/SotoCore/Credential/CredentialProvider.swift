@@ -35,10 +35,6 @@ extension CredentialProvider {
         return eventLoop.makeSucceededFuture(())
     }
 
-    public func getCredential(on eventLoop: EventLoop, logger: Logger) async throws -> Credential {
-        return try await getCredential(on: eventLoop, logger: logger).get()
-    }
-
     public var description: String { return "\(type(of: self))" }
 }
 

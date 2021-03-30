@@ -11,6 +11,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+
+#if compiler(>=5.4) && $AsyncAwait
+
 import Dispatch
 import Foundation
 import Logging
@@ -241,7 +244,7 @@ extension AWSClient {
         logger.log(level: self.options.requestLogLevel, "AWS Request")
         do {
             // get credentials
-            let credential = try await credentialProvider.getCredential(on: eventLoop, logger: logger)
+            let credential = try await credentialProvider.getCredential(on: eventLoop, logger: logger).get()
             // construct signer
             let signer = AWSSigner(credentials: credential, name: config.signingName, region: config.region.rawValue)
             // create request and sign with signer
@@ -338,7 +341,9 @@ extension AWSClient {
     }
 
     func createSigner(serviceConfig: AWSServiceConfig, logger: Logger) async throws -> AWSSigner {
-        let credential = try await credentialProvider.getCredential(on: eventLoopGroup.next(), logger: logger)
+        let credential = try await credentialProvider.getCredential(on: eventLoopGroup.next(), logger: logger).get()
         return AWSSigner(credentials: credential, name: serviceConfig.signingName, region: serviceConfig.region.rawValue)
     }
 }
+
+#endif // compiler(>=5.4) && $AsyncAwait

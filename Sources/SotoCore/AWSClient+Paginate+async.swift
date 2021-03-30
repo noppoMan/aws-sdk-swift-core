@@ -12,6 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if compiler(>=5.4) && $AsyncAwait
+
 import Logging
 import NIO
 
@@ -89,3 +91,5 @@ extension AWSClient {
     }
 
 }
+
+#endif // compiler(>=5.4) && $AsyncAwait

@@ -11,6 +11,9 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 //===----------------------------------------------------------------------===//
+
+#if compiler(>=5.4) && $AsyncAwait
+
 import NIO
 
 extension EventLoopFuture {
@@ -27,3 +30,5 @@ extension EventLoopFuture {
         }
     }
 }
+
+#endif // compiler(>=5.4) && $AsyncAwait

@@ -12,6 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if compiler(>=5.4) && $AsyncAwait
+
 import struct Foundation.URL
 import NIO
 
@@ -55,3 +57,5 @@ extension AWSService {
         return try await self.client.signHeaders(url: url, httpMethod: httpMethod, headers: headers, body: body, serviceConfig: self.config, logger: logger)
     }
 }
+
+#endif // compiler(>=5.4) && $AsyncAwait

@@ -118,12 +118,20 @@ public enum TestEnvironment {
     }()
 }
 
+#if compiler(>=5.4) && $AsyncAwait
+
 public func XCTRunAsyncAndBlock(_ closure: @escaping () async throws -> ()) {
-    runAsyncAndBlock {
+    let dg = DispatchGroup()
+    dg.enter()
+    Task.runDetached {
         do {
             try await closure()
         } catch {
             XCTFail("\(error)")
         }
+        dg.leave()
     }
+    dg.wait()
 }
+
+#endif // compiler(>=5.4) && $AsyncAwait

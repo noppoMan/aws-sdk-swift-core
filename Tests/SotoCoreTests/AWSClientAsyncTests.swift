@@ -12,6 +12,8 @@
 //
 //===----------------------------------------------------------------------===//
 
+#if compiler(>=5.4) && $AsyncAwait
+
 import AsyncHTTPClient
 import Dispatch
 import Logging
@@ -100,3 +102,5 @@ class AWSClientAsyncTests: XCTestCase {
         }
     }
 }
+
+#endif // compiler(>=5.4) && $AsyncAwait
