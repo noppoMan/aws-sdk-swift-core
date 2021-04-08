@@ -23,8 +23,9 @@ extension AWSClient {
         public typealias Element = Output
         let input: Input
         let command: ((Input, Logger, EventLoop?) async throws -> Output)
-        let inputKey: KeyPath<Input, Input.Token?>
+        let inputKey: KeyPath<Input, Input.Token?>?
         let outputKey: KeyPath<Output, Input.Token?>
+        let moreResultsKey: KeyPath<Output, Bool?>?
         let logger: Logger
         let eventLoop: EventLoop?
 
@@ -38,8 +39,9 @@ extension AWSClient {
         public init(
             input: Input,
             command: @escaping ((Input, Logger, EventLoop?) async throws -> Output),
-            inputKey: KeyPath<Input, Input.Token?>,
+            inputKey: KeyPath<Input, Input.Token?>? = nil,
             outputKey: KeyPath<Output, Input.Token?>,
+            moreResultsKey: KeyPath<Output, Bool?>? = nil,
             logger: Logger = AWSClient.loggingDisabled,
             on eventLoop: EventLoop? = nil
         ) {
@@ -47,6 +49,7 @@ extension AWSClient {
             self.command = command
             self.outputKey = outputKey
             self.inputKey = inputKey
+            self.moreResultsKey = moreResultsKey
             self.logger = AWSClient.loggingDisabled
             self.eventLoop = eventLoop
         }
@@ -64,7 +67,8 @@ extension AWSClient {
                 if let input = input {
                     let output = try await sequence.command(input, sequence.logger, sequence.eventLoop)
                     if let token = output[keyPath: sequence.outputKey],
-                       token != input[keyPath: sequence.inputKey] {
+                       (sequence.inputKey == nil || token != input[keyPath: sequence.inputKey!]),
+                       (sequence.moreResultsKey == nil || output[keyPath: sequence.moreResultsKey!] == true) {
                         self.input = input.usingPaginationToken(token)
                     } else {
                         self.input = nil
