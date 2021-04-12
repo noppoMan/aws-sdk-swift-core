@@ -22,7 +22,7 @@ extension AWSClient {
     public struct PaginatorSequence<Input: AWSPaginateToken, Output: AWSShape>: AsyncSequence where Input.Token: Equatable {
         public typealias Element = Output
         let input: Input
-        let command: ((Input, Logger, EventLoop?) async throws -> Output)
+        let command: (Input, Logger, EventLoop?) async throws -> Output
         let inputKey: KeyPath<Input, Input.Token?>?
         let outputKey: KeyPath<Output, Input.Token?>
         let moreResultsKey: KeyPath<Output, Bool?>?
@@ -63,12 +63,14 @@ extension AWSClient {
                 self.sequence = sequence
                 self.input = sequence.input
             }
+
             public mutating func next() async throws -> Output? {
                 if let input = input {
-                    let output = try await sequence.command(input, sequence.logger, sequence.eventLoop)
+                    let output = try await self.sequence.command(input, self.sequence.logger, self.sequence.eventLoop)
                     if let token = output[keyPath: sequence.outputKey],
-                       (sequence.inputKey == nil || token != input[keyPath: sequence.inputKey!]),
-                       (sequence.moreResultsKey == nil || output[keyPath: sequence.moreResultsKey!] == true) {
+                       sequence.inputKey == nil || token != input[keyPath: sequence.inputKey!],
+                       sequence.moreResultsKey == nil || output[keyPath: sequence.moreResultsKey!] == true
+                    {
                         self.input = input.usingPaginationToken(token)
                     } else {
                         self.input = nil
@@ -93,7 +95,6 @@ extension AWSClient {
             return result
         }
     }
-
 }
 
 #endif // compiler(>=5.4) && $AsyncAwait

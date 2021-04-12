@@ -335,11 +335,10 @@ class PaginateTests: XCTestCase {
 }
 
 #if compiler(>=5.4) && $AsyncAwait
-    
-extension PaginateTests {
 
+extension PaginateTests {
     func counter(_ input: CounterInput, logger: Logger, on eventLoop: EventLoop?) async throws -> CounterOutput {
-        return try await counter(input, logger: logger, on: eventLoop).get()
+        return try await self.counter(input, logger: logger, on: eventLoop).get()
     }
 
     func asyncCounterPaginator(_ input: CounterInput) -> AWSClient.PaginatorSequence<CounterInput, CounterOutput> {
@@ -356,8 +355,8 @@ extension PaginateTests {
         XCTRunAsyncAndBlock {
             // paginate input
             let input = CounterInput(inputToken: nil, pageSize: 4)
-            async let asyncFinalArray: [Int] = self.asyncCounterPaginator(input).reduce([], { return $0 + $1.array })
-            
+            async let asyncFinalArray: [Int] = self.asyncCounterPaginator(input).reduce([]) { return $0 + $1.array }
+
             let arraySize = 23
             // aws server process
             XCTAssertNoThrow(try self.awsServer.process { (input: CounterInput) throws -> AWSTestServer.Result<CounterOutput> in
@@ -387,7 +386,7 @@ extension PaginateTests {
             // paginate input
             let input = StringListInput(inputToken: nil, pageSize: 5)
             let paginator = self.asyncStringListPaginator(input)
-            async let asyncResult = paginator.reduce([], { $0 + $1.array })
+            async let asyncResult = paginator.reduce([]) { $0 + $1.array }
 
             // aws server process
             XCTAssertNoThrow(try self.awsServer.process(self.stringListServerProcess))
@@ -401,13 +400,13 @@ extension PaginateTests {
             }
         }
     }
-    
+
     func testAsyncPaginateError() throws {
         XCTRunAsyncAndBlock {
             // paginate input
             let input = StringListInput(inputToken: nil, pageSize: 5)
             let paginator = self.asyncStringListPaginator(input)
-            async let asyncResult = paginator.reduce([], { $0 + $1.array })
+            async let asyncResult = paginator.reduce([]) { $0 + $1.array }
 
             // aws server process
             XCTAssertNoThrow(try self.awsServer.process { (_: StringListInput) -> AWSTestServer.Result<StringListOutput> in

@@ -52,20 +52,27 @@ jobs:
     strategy:
       matrix:
         tag:
-          - swift:5.2
-          - swift:5.3
-          - swift:5.4
+          - nightly-centos8
+          - nightly-bionic
+          - nightly-focal
+          - nightly-amazonlinux2
     container:
-      image: ${{ matrix.tag }}
+      image: swiftlang/swift:${{ matrix.tag }}
     steps:
     - name: Checkout
       uses: actions/checkout@v1
       with:
         fetch-depth: 1
-    - name: Install dependencies
+    - name: Install dependencies (Ubuntu)
+      if: ${{ matrix.tag == 'nightly-bionic' || matrix.tag == 'nightly-focal'}}
       run: |
         apt-get update -qq
-        apt-get install -q -y tzdata zlib1g-dev curl
+        apt-get install -q -y tzdata zlib1g-dev
+    - name: Install dependencies (Amazon Linux2/CentOS8)
+      if: ${{ matrix.tag == 'nightly-amazonlinux2' || matrix.tag == 'nightly-centos8'}}
+      run: |
+        yum -y update
+        yum -y install zlib-devel
     - name: Test
       run: swift test --enable-test-discovery --enable-code-coverage --sanitize=thread
     - name: Convert coverage files

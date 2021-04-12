@@ -40,7 +40,7 @@ extension AWSClient {
         logger: Logger = AWSClient.loggingDisabled,
         on eventLoop: EventLoop? = nil
     ) async throws {
-        return try await execute(
+        return try await self.execute(
             operation: operationName,
             createRequest: {
                 try AWSRequest(
@@ -80,7 +80,7 @@ extension AWSClient {
         logger: Logger = AWSClient.loggingDisabled,
         on eventLoop: EventLoop? = nil
     ) async throws {
-        return try await execute(
+        return try await self.execute(
             operation: operationName,
             createRequest: {
                 try AWSRequest(
@@ -119,7 +119,7 @@ extension AWSClient {
         logger: Logger = AWSClient.loggingDisabled,
         on eventLoop: EventLoop? = nil
     ) async throws -> Output {
-        return try await execute(
+        return try await self.execute(
             operation: operationName,
             createRequest: {
                 try AWSRequest(
@@ -160,7 +160,7 @@ extension AWSClient {
         logger: Logger = AWSClient.loggingDisabled,
         on eventLoop: EventLoop? = nil
     ) async throws -> Output {
-        return try await execute(
+        return try await self.execute(
             operation: operationName,
             createRequest: {
                 try AWSRequest(
@@ -203,7 +203,7 @@ extension AWSClient {
         on eventLoop: EventLoop? = nil,
         stream: @escaping AWSHTTPClient.ResponseStream
     ) async throws -> Output {
-        return try await execute(
+        return try await self.execute(
             operation: operationName,
             createRequest: {
                 try AWSRequest(
@@ -225,6 +225,7 @@ extension AWSClient {
             on: eventLoop
         )
     }
+
     /// internal version of execute
     internal func execute<Output>(
         operation operationName: String,
@@ -306,7 +307,7 @@ extension AWSClient {
         logger: Logger = AWSClient.loggingDisabled
     ) async throws -> URL {
         let logger = logger.attachingRequestId(Self.globalRequestID.add(1), operation: "signHeaders", service: serviceConfig.service)
-        let signer = try await createSigner(serviceConfig: serviceConfig, logger: logger)
+        let signer = try await self.createSigner(serviceConfig: serviceConfig, logger: logger)
         guard let cleanURL = signer.processURL(url: url) else {
             throw AWSClient.ClientError.invalidURL
         }
@@ -332,7 +333,7 @@ extension AWSClient {
         logger: Logger = AWSClient.loggingDisabled
     ) async throws -> HTTPHeaders {
         let logger = logger.attachingRequestId(Self.globalRequestID.add(1), operation: "signHeaders", service: serviceConfig.service)
-        let signer = try await createSigner(serviceConfig: serviceConfig, logger: logger)
+        let signer = try await self.createSigner(serviceConfig: serviceConfig, logger: logger)
         guard let cleanURL = signer.processURL(url: url) else {
             throw AWSClient.ClientError.invalidURL
         }

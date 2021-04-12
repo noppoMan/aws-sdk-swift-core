@@ -79,7 +79,7 @@ class AWSServiceTests: XCTestCase {
         XCTAssertEqual(service.endpoint, service2.endpoint)
     }
 
-#if compiler(>=5.4) && $AsyncAwait
+    #if compiler(>=5.4) && $AsyncAwait
     func testSignURL() throws {
         XCTRunAsyncAndBlock {
             let client = createAWSClient(credentialProvider: .static(accessKeyId: "foo", secretAccessKey: "bar"))
@@ -118,6 +118,5 @@ class AWSServiceTests: XCTestCase {
             XCTAssertNotNil(headers["Authorization"].first)
         }
     }
-#endif // compiler(>=5.4) && $AsyncAwait
-
+    #endif // compiler(>=5.4) && $AsyncAwait
 }

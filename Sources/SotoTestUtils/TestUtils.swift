@@ -120,7 +120,7 @@ public enum TestEnvironment {
 
 #if compiler(>=5.4) && $AsyncAwait
 
-public func XCTRunAsyncAndBlock(_ closure: @escaping () async throws -> ()) {
+public func XCTRunAsyncAndBlock(_ closure: @escaping () async throws -> Void) {
     let dg = DispatchGroup()
     dg.enter()
     Task.runDetached {

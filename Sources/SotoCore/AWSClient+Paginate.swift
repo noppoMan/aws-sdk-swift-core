@@ -24,7 +24,6 @@ public protocol AWSPaginateToken: AWSShape {
     func usingPaginationToken(_ token: Token) -> Self
 }
 
-
 extension AWSClient {
     /// If an AWS command is returning an arbituary sized array sometimes it adds support for paginating this array
     /// ie it will return the array in blocks of a defined size, each block also includes a token which can be used to access
