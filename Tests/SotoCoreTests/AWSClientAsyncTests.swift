@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if compiler(>=5.4) && $AsyncAwait
+#if compiler(>=5.5) && $AsyncAwait
 
 import AsyncHTTPClient
 import Dispatch
@@ -26,6 +26,7 @@ import SotoTestUtils
 import SotoXML
 import XCTest
 
+@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
 class AWSClientAsyncTests: XCTestCase {
     func testClientNoInputNoOutput() {
         let awsServer = AWSTestServer(serviceProtocol: .json)
@@ -103,4 +104,4 @@ class AWSClientAsyncTests: XCTestCase {
     }
 }
 
-#endif // compiler(>=5.4) && $AsyncAwait
+#endif // compiler(>=5.5) && $AsyncAwait

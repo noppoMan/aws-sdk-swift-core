@@ -12,11 +12,12 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if compiler(>=5.4) && $AsyncAwait
+#if compiler(>=5.5) && $AsyncAwait
 
 import Logging
 import NIO
 
+@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
 extension AWSClient {
     /// Used to access paginated results.
     public struct PaginatorSequence<Input: AWSPaginateToken, Output: AWSShape>: AsyncSequence where Input.Token: Equatable {
@@ -97,4 +98,4 @@ extension AWSClient {
     }
 }
 
-#endif // compiler(>=5.4) && $AsyncAwait
+#endif // compiler(>=5.5) && $AsyncAwait

@@ -118,12 +118,13 @@ public enum TestEnvironment {
     }()
 }
 
-#if compiler(>=5.4) && $AsyncAwait
+#if compiler(>=5.5) && $AsyncAwait
 
+@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
 public func XCTRunAsyncAndBlock(_ closure: @escaping () async throws -> Void) {
     let dg = DispatchGroup()
     dg.enter()
-    Task.runDetached {
+    detach {
         do {
             try await closure()
         } catch {
@@ -134,4 +135,4 @@ public func XCTRunAsyncAndBlock(_ closure: @escaping () async throws -> Void) {
     dg.wait()
 }
 
-#endif // compiler(>=5.4) && $AsyncAwait
+#endif // compiler(>=5.5) && $AsyncAwait

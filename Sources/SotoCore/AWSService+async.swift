@@ -12,12 +12,13 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if compiler(>=5.4) && $AsyncAwait
+#if compiler(>=5.5) && $AsyncAwait
 
 import struct Foundation.URL
 import NIO
 
 /// Protocol for services objects. Contains a client to communicate with AWS and config for defining how to communicate
+@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
 extension AWSService {
     /// Generate a signed URL
     /// - parameters:
@@ -58,4 +59,4 @@ extension AWSService {
     }
 }
 
-#endif // compiler(>=5.4) && $AsyncAwait
+#endif // compiler(>=5.5) && $AsyncAwait

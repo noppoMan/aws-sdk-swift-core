@@ -12,11 +12,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if compiler(>=5.4) && $AsyncAwait
-
+#if compiler(>=5.5) && $AsyncAwait
 import NIO
 
 extension EventLoopFuture {
+    @available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
     public func get() async throws -> Value {
         return try await withUnsafeThrowingContinuation { cont in
             self.whenComplete { result in
@@ -31,4 +31,4 @@ extension EventLoopFuture {
     }
 }
 
-#endif // compiler(>=5.4) && $AsyncAwait
+#endif // compiler(>=5.5) && $AsyncAwait

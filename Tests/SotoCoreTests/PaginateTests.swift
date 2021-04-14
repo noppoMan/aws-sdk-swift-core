@@ -334,8 +334,9 @@ class PaginateTests: XCTestCase {
     }
 }
 
-#if compiler(>=5.4) && $AsyncAwait
+#if compiler(>=5.5) && $AsyncAwait
 
+@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
 extension PaginateTests {
     func counter(_ input: CounterInput, logger: Logger, on eventLoop: EventLoop?) async throws -> CounterOutput {
         return try await self.counter(input, logger: logger, on: eventLoop).get()
@@ -444,4 +445,4 @@ extension PaginateTests {
     }
 }
 
-#endif // compiler(>=5.4) && $AsyncAwait
+#endif // compiler(>=5.5) && $AsyncAwait

@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if compiler(>=5.4) && $AsyncAwait
+#if compiler(>=5.5) && $AsyncAwait
 
 import Dispatch
 import Foundation
@@ -20,6 +20,7 @@ import Logging
 import Metrics
 import SotoSignerV4
 
+@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
 extension AWSClient {
     /// execute a request with an input object and return a future with an empty response
     /// - parameters:
@@ -347,4 +348,4 @@ extension AWSClient {
     }
 }
 
-#endif // compiler(>=5.4) && $AsyncAwait
+#endif // compiler(>=5.5) && $AsyncAwait
