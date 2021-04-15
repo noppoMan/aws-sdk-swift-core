@@ -31,4 +31,24 @@ extension EventLoopFuture {
     }
 }
 
+extension EventLoopPromise {
+    /// Complete a future with the result (or error) of the `async` function `body`.
+    ///
+    /// This function can be used to bridge the `async` world into an `EventLoopPromise`.
+    ///
+    /// - parameters:
+    ///   - body: The `async` function to run.
+    @available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
+    public func completeWithAsync(_ body: @escaping () async throws -> Value) {
+        detach {
+            do {
+                let value = try await body()
+                self.succeed(value)
+            } catch {
+                self.fail(error)
+            }
+        }
+    }
+}
+
 #endif // compiler(>=5.5) && $AsyncAwait
