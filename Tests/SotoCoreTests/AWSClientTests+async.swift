@@ -14,6 +14,7 @@
 
 #if compiler(>=5.5) && $AsyncAwait
 
+import _Concurrency
 import AsyncHTTPClient
 import Dispatch
 import Logging
@@ -35,12 +36,18 @@ class AWSClientAsyncTests: XCTestCase {
             let config = createServiceConfig(serviceProtocol: .json(version: "1.1"), endpoint: awsServer.address)
             let client = createAWSClient(credentialProvider: .empty, middlewares: [AWSLoggingMiddleware()])
             defer { XCTAssertNoThrow(try client.syncShutdown()) }
-            async let result: Void = client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, logger: TestEnvironment.logger)
-            XCTAssertNoThrow(try awsServer.processRaw { _ in
-                let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: nil)
-                return .result(response)
-            })
-            try await result
+
+            try await withThrowingTaskGroup(of: Bool.self) { group in
+                group.spawn {
+                    try await client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, logger: TestEnvironment.logger)
+                    return true
+                }
+                try awsServer.processRaw { _ in
+                    let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: nil)
+                    return .result(response)
+                }
+                for try await _ in group {}
+            }
         }
     }
 
@@ -61,15 +68,21 @@ class AWSClientAsyncTests: XCTestCase {
             let client = createAWSClient(credentialProvider: .empty, middlewares: [AWSLoggingMiddleware()])
             defer { XCTAssertNoThrow(try client.syncShutdown()) }
             let input = Input(e: .second, i: [1, 2, 4, 8])
-            async let result: Void = client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, input: input, logger: TestEnvironment.logger)
-            XCTAssertNoThrow(try awsServer.processRaw { request in
-                let receivedInput = try JSONDecoder().decode(Input.self, from: request.body)
-                XCTAssertEqual(receivedInput.e, .second)
-                XCTAssertEqual(receivedInput.i, [1, 2, 4, 8])
-                let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: nil)
-                return .result(response)
-            })
-            try await result
+
+            try await withThrowingTaskGroup(of: Bool.self) { group in
+                group.spawn {
+                    try await client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, input: input, logger: TestEnvironment.logger)
+                    return true
+                }
+                try awsServer.processRaw { request in
+                    let receivedInput = try JSONDecoder().decode(Input.self, from: request.body)
+                    XCTAssertEqual(receivedInput.e, .second)
+                    XCTAssertEqual(receivedInput.i, [1, 2, 4, 8])
+                    let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: nil)
+                    return .result(response)
+                }
+                for try await _ in group {}
+            }
         }
     }
 
@@ -90,14 +103,19 @@ class AWSClientAsyncTests: XCTestCase {
             )
             defer { XCTAssertNoThrow(try client.syncShutdown()) }
 
-            async let asyncOutput: Output = client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, logger: TestEnvironment.logger)
-            XCTAssertNoThrow(try awsServer.processRaw { _ in
-                let output = Output(s: "TestOutputString", i: 547)
-                let byteBuffer = try JSONEncoder().encodeAsByteBuffer(output, allocator: ByteBufferAllocator())
-                let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: byteBuffer)
-                return .result(response)
-            })
-            let output = try await asyncOutput
+            let output = try await withThrowingTaskGroup(of: Output.self) { group -> Output in
+                group.spawn {
+                    return try await client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, logger: TestEnvironment.logger)
+                }
+                try awsServer.processRaw { _ in
+                    let output = Output(s: "TestOutputString", i: 547)
+                    let byteBuffer = try JSONEncoder().encodeAsByteBuffer(output, allocator: ByteBufferAllocator())
+                    let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: byteBuffer)
+                    return .result(response)
+                }
+                return try await group.first { _ in true }!
+            }
+
             XCTAssertEqual(output.s, "TestOutputString")
             XCTAssertEqual(output.i, 547)
         }

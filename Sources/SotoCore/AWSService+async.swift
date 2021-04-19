@@ -14,6 +14,7 @@
 
 #if compiler(>=5.5) && $AsyncAwait
 
+import _Concurrency
 import struct Foundation.URL
 import NIO
 

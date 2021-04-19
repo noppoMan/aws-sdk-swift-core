@@ -117,22 +117,3 @@ public enum TestEnvironment {
         return AWSClient.loggingDisabled
     }()
 }
-
-#if compiler(>=5.5) && $AsyncAwait
-
-@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
-public func XCTRunAsyncAndBlock(_ closure: @escaping () async throws -> Void) {
-    let dg = DispatchGroup()
-    dg.enter()
-    detach {
-        do {
-            try await closure()
-        } catch {
-            XCTFail("\(error)")
-        }
-        dg.leave()
-    }
-    dg.wait()
-}
-
-#endif // compiler(>=5.5) && $AsyncAwait

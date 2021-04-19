@@ -47,8 +47,7 @@ let package = Package(
                 .product(name: "NIOTransportServices", package: "swift-nio-transport-services"),
                 .product(name: "NIOFoundationCompat", package: "swift-nio"),
                 .product(name: "JMESPath", package: "jmespath.swift"),
-            ],
-            swiftSettings: [.unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])]
+            ]
         ),
         .target(name: "SotoCrypto", dependencies: []),
         .target(name: "SotoSignerV4", dependencies: [
@@ -63,8 +62,7 @@ let package = Package(
                 .product(name: "NIOHTTP1", package: "swift-nio"),
                 .product(name: "NIOFoundationCompat", package: "swift-nio"),
                 .product(name: "NIOTestUtils", package: "swift-nio"),
-            ],
-            swiftSettings: [.unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])]
+            ]
         ),
         .target(name: "SotoXML", dependencies: [
             .byName(name: "CSotoExpat"),
@@ -80,8 +78,7 @@ let package = Package(
             dependencies: [
                 .byName(name: "SotoCore"),
                 .byName(name: "SotoTestUtils"),
-            ],
-            swiftSettings: [.unsafeFlags(["-Xfrontend", "-enable-experimental-concurrency"])]
+            ]
         ),
         .testTarget(name: "SotoSignerV4Tests", dependencies: [
             .byName(name: "SotoSignerV4"),
