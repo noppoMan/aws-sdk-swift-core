@@ -113,7 +113,7 @@ class AWSClientAsyncTests: XCTestCase {
                     let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: byteBuffer)
                     return .result(response)
                 }
-                return try await group.first { _ in true }!
+                return try await group.next()!
             }
 
             XCTAssertEqual(output.s, "TestOutputString")

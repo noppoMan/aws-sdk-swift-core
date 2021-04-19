@@ -59,7 +59,7 @@ extension PaginateTests {
                     let output = CounterOutput(array: array, outputToken: endIndex != arraySize ? endIndex : nil)
                     return .result(output, continueProcessing: continueProcessing)
                 }
-                return try await group.first { _ in true }!
+                return try await group.next()!
             }
 
             // verify contents of array
@@ -80,7 +80,7 @@ extension PaginateTests {
                     return try await paginator.reduce([]) { $0 + $1.array }
                 }
                 try self.awsServer.process(self.stringListServerProcess)
-                return try await group.first { _ in true }!
+                return try await group.next()!
             }
             // verify contents of array
             XCTAssertEqual(finalArray.count, self.stringList.count)
@@ -103,7 +103,7 @@ extension PaginateTests {
                     try self.awsServer.process { (_: StringListInput) -> AWSTestServer.Result<StringListOutput> in
                         return .error(.badRequest)
                     }
-                    return try await group.first { _ in true }!
+                    return try await group.next()!
                 }
             } catch {
                 XCTAssertEqual((error as? AWSResponseError)?.errorCode, "BadRequest")
