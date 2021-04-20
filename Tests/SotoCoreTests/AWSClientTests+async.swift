@@ -46,7 +46,7 @@ class AWSClientAsyncTests: XCTestCase {
                     let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: nil)
                     return .result(response)
                 }
-                for try await _ in group {}
+                _ = try await group.next()
             }
         }
     }
@@ -81,7 +81,7 @@ class AWSClientAsyncTests: XCTestCase {
                     let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: nil)
                     return .result(response)
                 }
-                for try await _ in group {}
+                _ = try await group.next()
             }
         }
     }
