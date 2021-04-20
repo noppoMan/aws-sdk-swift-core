@@ -67,7 +67,9 @@ jobs:
         apt-get update -qq
         apt-get install -q -y tzdata zlib1g-dev curl
     - name: Test
-      run: swift test --enable-test-discovery --enable-code-coverage --sanitize=thread
+      run: |
+        swift --version
+        swift test --enable-test-discovery --enable-code-coverage --sanitize=thread
     - name: Convert coverage files
       run: |
         llvm-cov export -format="lcov" \
