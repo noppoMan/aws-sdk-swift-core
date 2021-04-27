@@ -14,6 +14,7 @@
 
 #if compiler(>=5.5) && $AsyncAwait
 
+import _NIOConcurrency
 import Logging
 import NIO
 import SotoSignerV4

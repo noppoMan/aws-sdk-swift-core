@@ -15,6 +15,7 @@
 #if compiler(>=5.5) && $AsyncAwait
 
 import _Concurrency
+import _NIOConcurrency
 import Dispatch
 import Foundation
 import Logging
