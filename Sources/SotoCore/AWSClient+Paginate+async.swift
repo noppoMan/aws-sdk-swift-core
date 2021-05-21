@@ -88,34 +88,6 @@ extension AWSClient {
         public func makeAsyncIterator() -> AsyncIterator {
             return AsyncIterator(sequence: self)
         }
-
-        @inlinable
-        public func reduce<Result>(
-            _ initialResult: Result,
-            _ nextPartialResult:
-            (_ partialResult: Result, Element) async throws -> Result
-        ) async throws -> Result {
-            var accumulator = initialResult
-            var iterator = self.makeAsyncIterator()
-            while let element = try await iterator.next() {
-                accumulator = try await nextPartialResult(accumulator, element)
-            }
-            return accumulator
-        }
-
-        @inlinable
-        public func reduce<Result>(
-            into initialResult: __owned Result,
-            _ updateAccumulatingResult:
-            (_ partialResult: inout Result, Element) async throws -> Void
-        ) async throws -> Result {
-            var accumulator = initialResult
-            var iterator = self.makeAsyncIterator()
-            while let element = try await iterator.next() {
-                try await updateAccumulatingResult(&accumulator, element)
-            }
-            return accumulator
-        }
     }
 }
 
