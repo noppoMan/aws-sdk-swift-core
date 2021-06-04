@@ -24,7 +24,7 @@ import XCTest
 public func XCTRunAsyncAndBlock(_ closure: @escaping () async throws -> Void) {
     let dg = DispatchGroup()
     dg.enter()
-    detach {
+    Task.detached {
         do {
             try await closure()
         } catch {

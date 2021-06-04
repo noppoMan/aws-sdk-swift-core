@@ -38,7 +38,7 @@ class AWSClientAsyncTests: XCTestCase {
             defer { XCTAssertNoThrow(try client.syncShutdown()) }
 
             try await withThrowingTaskGroup(of: Bool.self) { group in
-                group.spawn {
+                group.async {
                     try await client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, logger: TestEnvironment.logger)
                     return true
                 }
@@ -70,7 +70,7 @@ class AWSClientAsyncTests: XCTestCase {
             let input = Input(e: .second, i: [1, 2, 4, 8])
 
             try await withThrowingTaskGroup(of: Bool.self) { group in
-                group.spawn {
+                group.async {
                     try await client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, input: input, logger: TestEnvironment.logger)
                     return true
                 }
@@ -104,7 +104,7 @@ class AWSClientAsyncTests: XCTestCase {
             defer { XCTAssertNoThrow(try client.syncShutdown()) }
 
             let output = try await withThrowingTaskGroup(of: Output.self) { group -> Output in
-                group.spawn {
+                group.async {
                     return try await client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, logger: TestEnvironment.logger)
                 }
                 try awsServer.processRaw { _ in

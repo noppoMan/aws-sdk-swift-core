@@ -169,7 +169,7 @@ final class PaginateAsyncTests: XCTestCase {
             let arraySize = 23
 
             let finalArray = try await withThrowingTaskGroup(of: [Int].self) { group -> [Int] in
-                group.spawn {
+                group.async {
                     return try await self.asyncCounterPaginator(input).reduce([]) { return $0 + $1.array }
                 }
                 try self.awsServer.process { (input: CounterInput) throws -> AWSTestServer.Result<CounterOutput> in
@@ -200,7 +200,7 @@ final class PaginateAsyncTests: XCTestCase {
             // paginate input
             let input = StringListInput(inputToken: nil, pageSize: 5)
             let finalArray = try await withThrowingTaskGroup(of: [String].self) { group -> [String] in
-                group.spawn {
+                group.async {
                     let paginator = self.asyncStringListPaginator(input)
                     return try await paginator.reduce([]) { $0 + $1.array }
                 }
@@ -221,7 +221,7 @@ final class PaginateAsyncTests: XCTestCase {
             let input = StringListInput(inputToken: nil, pageSize: 5)
             do {
                 _ = try await withThrowingTaskGroup(of: [String].self) { group -> [String] in
-                    group.spawn {
+                    group.async {
                         let paginator = self.asyncStringListPaginator(input)
                         return try await paginator.reduce([]) { $0 + $1.array }
                     }
