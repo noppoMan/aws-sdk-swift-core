@@ -21,7 +21,7 @@ import SotoSignerV4
 
 /// Async Protocol for providing credentials
 @available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
-public protocol AsyncCredentialProvider {
+public protocol AsyncCredentialProvider: CredentialProvider {
     /// Return credential
     /// - Parameters:
     ///   - eventLoop: EventLoop to run on
@@ -31,7 +31,7 @@ public protocol AsyncCredentialProvider {
 
 @available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
 extension AsyncCredentialProvider {
-    func getCredential(on eventLoop: EventLoop, logger: Logger) -> EventLoopFuture<Credential> {
+    public func getCredential(on eventLoop: EventLoop, logger: Logger) -> EventLoopFuture<Credential> {
         let promise = eventLoop.makePromise(of: Credential.self)
         promise.completeWithAsync { try await getCredential(on: eventLoop, logger: logger) }
         return promise.futureResult
