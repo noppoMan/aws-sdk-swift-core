@@ -2,7 +2,7 @@
 //
 // This source file is part of the Soto for AWS open source project
 //
-// Copyright (c) 2017-2020 the Soto project authors
+// Copyright (c) 2017-2021 the Soto project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -265,6 +265,7 @@ extension AWSClient {
         httpMethod: HTTPMethod,
         serviceConfig: AWSServiceConfig,
         input: Input,
+        hostPrefix: String? = nil,
         logger: Logger = AWSClient.loggingDisabled,
         on eventLoop: EventLoop? = nil
     ) -> EventLoopFuture<Void> {
@@ -276,6 +277,7 @@ extension AWSClient {
                     path: path,
                     httpMethod: httpMethod,
                     input: input,
+                    hostPrefix: hostPrefix,
                     configuration: serviceConfig
                 )
             },
@@ -385,6 +387,7 @@ extension AWSClient {
         httpMethod: HTTPMethod,
         serviceConfig: AWSServiceConfig,
         input: Input,
+        hostPrefix: String? = nil,
         logger: Logger = AWSClient.loggingDisabled,
         on eventLoop: EventLoop? = nil
     ) -> EventLoopFuture<Output> {
@@ -396,6 +399,7 @@ extension AWSClient {
                     path: path,
                     httpMethod: httpMethod,
                     input: input,
+                    hostPrefix: hostPrefix,
                     configuration: serviceConfig
                 )
             },
@@ -427,6 +431,7 @@ extension AWSClient {
         httpMethod: HTTPMethod,
         serviceConfig: AWSServiceConfig,
         input: Input,
+        hostPrefix: String? = nil,
         logger: Logger = AWSClient.loggingDisabled,
         on eventLoop: EventLoop? = nil,
         stream: @escaping AWSHTTPClient.ResponseStream
@@ -439,6 +444,7 @@ extension AWSClient {
                     path: path,
                     httpMethod: httpMethod,
                     input: input,
+                    hostPrefix: hostPrefix,
                     configuration: serviceConfig
                 )
             },

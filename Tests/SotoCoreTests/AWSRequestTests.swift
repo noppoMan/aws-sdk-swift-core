@@ -2,7 +2,7 @@
 //
 // This source file is part of the Soto for AWS open source project
 //
-// Copyright (c) 2017-2020 the Soto project authors
+// Copyright (c) 2017-2021 the Soto project authors
 // Licensed under Apache License v2.0
 //
 // See LICENSE.txt for license information
@@ -359,5 +359,44 @@ class AWSRequestTests: XCTestCase {
         var request: AWSRequest?
         XCTAssertNoThrow(request = try AWSRequest(operation: "Test", path: "/", httpMethod: .POST, input: input, configuration: config))
         XCTAssertEqual(request?.body.asString(), "{}")
+    }
+
+    /// Test host prefix
+    func testHostPrefix() {
+        struct Input: AWSEncodableShape {}
+        let input = Input()
+        let config = createServiceConfig(serviceProtocol: .json(version: "1.0"), endpoint: "https://test.com")
+        var request: AWSRequest?
+        XCTAssertNoThrow(request = try AWSRequest(
+            operation: "Test",
+            path: "/",
+            httpMethod: .POST,
+            input: input,
+            hostPrefix: "foo.",
+            configuration: config
+        ))
+        XCTAssertEqual(request?.url.absoluteString, "https://foo.test.com/")
+    }
+
+    /// Test host prefix
+    func testHostPrefixLabel() {
+        struct Input: AWSEncodableShape {
+            static let _encoding: [AWSMemberEncoding] = [
+                .init(label: "accountId", location: .uri(locationName: "AccountId")),
+            ]
+            let accountId: String
+        }
+        let input = Input(accountId: "12345678")
+        let config = createServiceConfig(serviceProtocol: .json(version: "1.0"), endpoint: "https://test.com")
+        var request: AWSRequest?
+        XCTAssertNoThrow(request = try AWSRequest(
+            operation: "Test",
+            path: "/",
+            httpMethod: .POST,
+            input: input,
+            hostPrefix: "{AccountId}.",
+            configuration: config
+        ))
+        XCTAssertEqual(request?.url.absoluteString, "https://12345678.test.com/")
     }
 }
