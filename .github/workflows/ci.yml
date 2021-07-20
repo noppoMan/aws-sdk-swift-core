@@ -63,10 +63,15 @@ jobs:
       uses: actions/checkout@v1
       with:
         fetch-depth: 1
-    - name: Install dependencies
+    - name: Install dependencies (Ubuntu)
+      if: ${{ matrix.tag == 'nightly-5.5-bionic' || matrix.tag == 'nightly-5.5-focal'}}
       run: |
         apt-get update -qq
-        apt-get install -q -y tzdata zlib1g-dev curl
+        apt-get install -q -y tzdata zlib1g-dev
+    - name: Install dependencies (Amazon Linux2/CentOS8)
+      if: ${{ matrix.tag == 'nightly-5.5-amazonlinux2' || matrix.tag == 'nightly-5.5-centos8'}}
+      run: |
+        yum -y install zlib-devel
     - name: Test
       run: |
         swift --version

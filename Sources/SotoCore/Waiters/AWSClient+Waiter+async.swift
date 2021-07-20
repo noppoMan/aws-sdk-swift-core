@@ -20,6 +20,26 @@ import Logging
 import NIO
 
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-extension AWSClient {}
+extension AWSClient {
+    /// Returns when waiter polling returns a success state
+    /// or returns an error if the polling returns an error or timesout
+    ///
+    /// - Parameters:
+    ///   - input: Input parameters
+    ///   - waiter: Waiter to wait on
+    ///   - maxWaitTime: Maximum amount of time to wait
+    ///   - logger: Logger used to provide output
+    ///   - eventLoop: EventLoop to run API calls on
+    /// - Returns: EventLoopFuture that will be fulfilled once waiter has completed
+    public func waitUntil<Input, Output>(
+        _ input: Input,
+        waiter: Waiter<Input, Output>,
+        maxWaitTime: TimeAmount? = nil,
+        logger: Logger = AWSClient.loggingDisabled,
+        on eventLoop: EventLoop? = nil
+    ) async throws {
+        return try await self.waitUntil(input, waiter: waiter, maxWaitTime: maxWaitTime, logger: logger, on: eventLoop).get()
+    }
+}
 
 #endif // compiler(>=5.5)

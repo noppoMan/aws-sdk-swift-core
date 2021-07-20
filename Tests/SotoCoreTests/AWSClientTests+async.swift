@@ -29,26 +29,26 @@ import XCTest
 
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 class AWSClientAsyncTests: XCTestCase {
-    func testClientNoInputNoOutput() async throws {
+    func testClientNoInputNoOutput() {
         let awsServer = AWSTestServer(serviceProtocol: .json)
         defer { XCTAssertNoThrow(try awsServer.stop()) }
-//        XCTRunAsyncAndBlock {
-        let config = createServiceConfig(serviceProtocol: .json(version: "1.1"), endpoint: awsServer.address)
-        let client = createAWSClient(credentialProvider: .empty, middlewares: [AWSLoggingMiddleware()])
-        defer { XCTAssertNoThrow(try client.syncShutdown()) }
+        XCTRunAsyncAndBlock {
+            let config = createServiceConfig(serviceProtocol: .json(version: "1.1"), endpoint: awsServer.address)
+            let client = createAWSClient(credentialProvider: .empty, middlewares: [AWSLoggingMiddleware()])
+            defer { XCTAssertNoThrow(try client.syncShutdown()) }
 
-        try await withThrowingTaskGroup(of: Bool.self) { group in
-            group.async {
-                try await client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, logger: TestEnvironment.logger)
-                return true
+            try await withThrowingTaskGroup(of: Bool.self) { group in
+                group.async {
+                    try await client.execute(operation: "test", path: "/", httpMethod: .POST, serviceConfig: config, logger: TestEnvironment.logger)
+                    return true
+                }
+                try awsServer.processRaw { _ in
+                    let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: nil)
+                    return .result(response)
+                }
+                _ = try await group.next()
             }
-            try awsServer.processRaw { _ in
-                let response = AWSTestServer.Response(httpStatus: .ok, headers: [:], body: nil)
-                return .result(response)
-            }
-            _ = try await group.next()
         }
-//        }
     }
 
     func testClientWithInputNoOutput() {
