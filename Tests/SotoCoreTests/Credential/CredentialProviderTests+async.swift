@@ -20,7 +20,7 @@ import SotoCore
 import SotoTestUtils
 import XCTest
 
-@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 class AsyncCredentialProviderTests: XCTestCase {
     func testAsyncCredentialProvider() {
         struct TestAsyncProvider: AsyncCredentialProvider {

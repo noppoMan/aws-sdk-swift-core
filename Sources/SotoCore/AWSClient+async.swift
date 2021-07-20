@@ -22,7 +22,7 @@ import Logging
 import Metrics
 import SotoSignerV4
 
-@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 extension AWSClient {
     /// execute a request with an input object and return a future with an empty response
     /// - parameters:

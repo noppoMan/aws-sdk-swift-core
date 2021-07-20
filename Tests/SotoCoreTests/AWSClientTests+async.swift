@@ -27,12 +27,12 @@ import SotoTestUtils
 import SotoXML
 import XCTest
 
-@available(macOS 9999, iOS 9999, watchOS 9999, tvOS 9999, *)
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 class AWSClientAsyncTests: XCTestCase {
-    func testClientNoInputNoOutput() {
+    func testClientNoInputNoOutput() async throws {
         let awsServer = AWSTestServer(serviceProtocol: .json)
         defer { XCTAssertNoThrow(try awsServer.stop()) }
-        XCTRunAsyncAndBlock {
+//        XCTRunAsyncAndBlock {
             let config = createServiceConfig(serviceProtocol: .json(version: "1.1"), endpoint: awsServer.address)
             let client = createAWSClient(credentialProvider: .empty, middlewares: [AWSLoggingMiddleware()])
             defer { XCTAssertNoThrow(try client.syncShutdown()) }
@@ -48,7 +48,7 @@ class AWSClientAsyncTests: XCTestCase {
                 }
                 _ = try await group.next()
             }
-        }
+//        }
     }
 
     func testClientWithInputNoOutput() {
