@@ -12,7 +12,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if compiler(>=5.5) && $AsyncAwait
+#if compiler(>=5.5)
 
 import _NIOConcurrency
 import Logging
@@ -38,4 +38,4 @@ extension AsyncCredentialProvider {
     }
 }
 
-#endif // compiler(>=5.5) && $AsyncAwait
+#endif // compiler(>=5.5)
