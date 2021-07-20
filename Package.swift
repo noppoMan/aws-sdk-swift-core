@@ -25,39 +25,46 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
         .package(url: "https://github.com/apple/swift-metrics.git", "1.0.0"..<"3.0.0"),
-        .package(url: "https://github.com/apple/swift-nio.git", from: "2.16.1"),
-        .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.7.2"),
-        .package(url: "https://github.com/apple/swift-nio-transport-services.git", from: "1.0.0"),
-        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.3.0"),
+        .package(url: "https://github.com/apple/swift-nio.git", .upToNextMajor(from: "2.30.0")),
+        .package(url: "https://github.com/apple/swift-nio-ssl.git", .upToNextMajor(from: "2.7.2")),
+        .package(url: "https://github.com/apple/swift-nio-transport-services.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/swift-server/async-http-client.git", .upToNextMajor(from: "1.3.0")),
         .package(url: "https://github.com/adam-fowler/jmespath.swift.git", from: "1.0.0"),
     ],
     targets: [
-        .target(name: "SotoCore", dependencies: [
-            .byName(name: "SotoSignerV4"),
-            .byName(name: "SotoXML"),
-            .byName(name: "INIParser"),
-            .product(name: "Logging", package: "swift-log"),
-            .product(name: "AsyncHTTPClient", package: "async-http-client"),
-            .product(name: "Metrics", package: "swift-metrics"),
-            .product(name: "NIO", package: "swift-nio"),
-            .product(name: "NIOHTTP1", package: "swift-nio"),
-            .product(name: "NIOSSL", package: "swift-nio-ssl"),
-            .product(name: "NIOTransportServices", package: "swift-nio-transport-services"),
-            .product(name: "NIOFoundationCompat", package: "swift-nio"),
-            .product(name: "JMESPath", package: "jmespath.swift"),
-        ]),
+        .target(
+            name: "SotoCore",
+            dependencies: [
+                .byName(name: "SotoSignerV4"),
+                .byName(name: "SotoXML"),
+                .byName(name: "INIParser"),
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "AsyncHTTPClient", package: "async-http-client"),
+                .product(name: "Metrics", package: "swift-metrics"),
+                .product(name: "NIO", package: "swift-nio"),
+                .product(name: "NIOHTTP1", package: "swift-nio"),
+                .product(name: "NIOSSL", package: "swift-nio-ssl"),
+                .product(name: "NIOTransportServices", package: "swift-nio-transport-services"),
+                .product(name: "NIOFoundationCompat", package: "swift-nio"),
+                .product(name: "_NIOConcurrency", package: "swift-nio"),
+                .product(name: "JMESPath", package: "jmespath.swift"),
+            ]
+        ),
         .target(name: "SotoCrypto", dependencies: []),
         .target(name: "SotoSignerV4", dependencies: [
             .byName(name: "SotoCrypto"),
             .product(name: "NIOHTTP1", package: "swift-nio"),
         ]),
-        .target(name: "SotoTestUtils", dependencies: [
-            .byName(name: "SotoCore"),
-            .product(name: "NIO", package: "swift-nio"),
-            .product(name: "NIOHTTP1", package: "swift-nio"),
-            .product(name: "NIOFoundationCompat", package: "swift-nio"),
-            .product(name: "NIOTestUtils", package: "swift-nio"),
-        ]),
+        .target(
+            name: "SotoTestUtils",
+            dependencies: [
+                .byName(name: "SotoCore"),
+                .product(name: "NIO", package: "swift-nio"),
+                .product(name: "NIOHTTP1", package: "swift-nio"),
+                .product(name: "NIOFoundationCompat", package: "swift-nio"),
+                .product(name: "NIOTestUtils", package: "swift-nio"),
+            ]
+        ),
         .target(name: "SotoXML", dependencies: [
             .byName(name: "CSotoExpat"),
         ]),
@@ -67,10 +74,13 @@ let package = Package(
         .testTarget(name: "SotoCryptoTests", dependencies: [
             .byName(name: "SotoCrypto"),
         ]),
-        .testTarget(name: "SotoCoreTests", dependencies: [
-            .byName(name: "SotoCore"),
-            .byName(name: "SotoTestUtils"),
-        ]),
+        .testTarget(
+            name: "SotoCoreTests",
+            dependencies: [
+                .byName(name: "SotoCore"),
+                .byName(name: "SotoTestUtils"),
+            ]
+        ),
         .testTarget(name: "SotoSignerV4Tests", dependencies: [
             .byName(name: "SotoSignerV4"),
         ]),
